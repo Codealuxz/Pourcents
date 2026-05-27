@@ -22,6 +22,7 @@ const TOTAL_SUBS = 1349618;
 export default function App() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [subsValue, setSubsValue] = useState(0);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
 
   useEffect(() => {
     const onScroll = () => {
@@ -32,6 +33,12 @@ export default function App() {
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, []);
 
   // Trigger l'animation du compteur quand la section devient visible
@@ -137,12 +144,12 @@ export default function App() {
           </div>
         </section>
 
-        {/* Lanyard fixed sur le hero uniquement (disparait au scroll) */}
+        {/* Lanyard fixed : sur mobile -> disparait au scroll, sur desktop -> glisse a gauche */}
         <div
           className="fixed inset-0 z-[100]"
           style={{
-            opacity: scrollProgress > 0.05 ? 0 : 1,
-            pointerEvents: scrollProgress > 0.05 ? 'none' : 'auto',
+            opacity: isMobile && scrollProgress > 0.05 ? 0 : 1,
+            pointerEvents: isMobile && scrollProgress > 0.05 ? 'none' : 'auto',
             transition: 'opacity 0.4s ease-out',
           }}
         >
