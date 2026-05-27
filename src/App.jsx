@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import LightRays from './components/LightRays';
 import ClickSpark from './components/ClickSpark';
 import GradualBlur from './components/GradualBlur';
@@ -13,8 +13,9 @@ import { members, formatCount } from './data/members';
 
 const navItems = [
   { label: 'Accueil', href: '#hero' },
+  { label: 'Compteur', href: '#subs-counter' },
   { label: 'Membres', href: '#roster' },
-  { label: 'Chiffres', href: '#palmares' },
+  { label: 'Stats', href: '#palmares' },
 ];
 
 const TOTAL_SUBS = 13284588;
@@ -29,6 +30,30 @@ export default function App() {
   const [subsValue, setSubsValue] = useState(0);
   const [liveActive, setLiveActive] = useState(false);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const counterSectionRef = useRef(null);
+
+  // Activer le live dès le mount (au lieu d'attendre le scroll, pour avoir le compteur en nav aussi)
+  useEffect(() => {
+    setLiveActive(true);
+  }, []);
+
+  // Toggle fullscreen sur la section compteur
+  const toggleFullscreen = () => {
+    const el = counterSectionRef.current;
+    if (!el) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      el.requestFullscreen?.();
+    }
+  };
+
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', onFsChange);
+    return () => document.removeEventListener('fullscreenchange', onFsChange);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => {
@@ -104,18 +129,20 @@ export default function App() {
       <Loader />
       <div className="min-h-screen bg-ink text-bone relative">
         {}
-        <header className="fixed top-6 left-0 right-0 z-[200] flex justify-center pointer-events-none">
-          <div className="pointer-events-auto rounded-[14px] border border-white/15 bg-black p-2 overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
-            <GooeyNav
-              items={navItems}
-              particleCount={15}
-              particleDistances={[90, 10]}
-              particleR={100}
-              initialActiveIndex={0}
-              animationTime={600}
-              timeVariance={300}
-              colors={[1, 2, 3, 4]}
-            />
+        <header className="fixed top-6 left-0 right-0 z-[200] pointer-events-none">
+          <div className="flex justify-center">
+            <div className="pointer-events-auto rounded-[14px] border border-white/15 bg-black p-2 overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+              <GooeyNav
+                items={navItems}
+                particleCount={15}
+                particleDistances={[90, 10]}
+                particleR={100}
+                initialActiveIndex={0}
+                animationTime={600}
+                timeVariance={300}
+                colors={[1, 2, 3, 4]}
+              />
+            </div>
           </div>
         </header>
 
@@ -176,13 +203,20 @@ export default function App() {
         </section>
 
         {}
-        <section id="subs-counter" className="relative px-6 md:px-10 py-32 max-w-5xl mx-auto text-center">
+        <section
+          id="subs-counter"
+          ref={counterSectionRef}
+          className={`relative px-6 md:px-10 ${isFullscreen ? 'h-screen flex flex-col items-center justify-center bg-ink' : 'py-32'} max-w-5xl mx-auto text-center`}
+        >
           <p className="font-mono text-xs uppercase tracking-widest text-white/50 mb-8">Abonnés cumulés des %</p>
-          <div className="flex items-center justify-center gap-2 font-display" style={{ height: isMobile ? 80 : 120 }}>
+          <div
+            className="flex items-center justify-center gap-2 font-display"
+            style={{ height: isFullscreen ? (isMobile ? 140 : 220) : isMobile ? 60 : 120 }}
+          >
             <Counter
               value={subsValue}
               places={[10000000, 1000000, 100000, 10000, 1000, 100, 10, 1]}
-              fontSize={isMobile ? 64 : 110}
+              fontSize={isFullscreen ? (isMobile ? 110 : 200) : isMobile ? 44 : 110}
               padding={8}
               gap={4}
               horizontalPadding={0}
@@ -193,14 +227,28 @@ export default function App() {
               gradientHeight={20}
             />
           </div>
+          <button
+            onClick={toggleFullscreen}
+            aria-label={isFullscreen ? 'Quitter plein écran' : 'Plein écran'}
+            className="absolute bottom-4 right-4 md:bottom-6 md:right-6 p-2 text-white/40 hover:text-bone transition-colors"
+          >
+            {isFullscreen ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8 3v3a2 2 0 0 1-2 2H3M21 8h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3M16 21v-3a2 2 0 0 1 2-2h3" />
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3" />
+              </svg>
+            )}
+          </button>
         </section>
 
         {}
         <div
-          className="fixed inset-0 z-[100]"
+          className="fixed inset-0 z-[100] pointer-events-none"
           style={{
             opacity: isMobile && scrollProgress > 0.05 ? 0 : 1,
-            pointerEvents: isMobile && scrollProgress > 0.05 ? 'none' : 'auto',
             transition: 'opacity 0.4s ease-out',
           }}
         >
