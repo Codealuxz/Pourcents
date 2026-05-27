@@ -17,28 +17,12 @@ const navItems = [
   { label: 'Chiffres', href: '#palmares' },
 ];
 
-const TOTAL_SUBS = 13115380;
-
-// Toutes les chaines YouTube a fetcher en live (Natop x5 + 11 autres = 16)
-const LIVE_CHANNELS = [
-  'UCOnHh1jq4LZ2Pgn7adeXnFg', // Natop
-  'UCxnV0b1efAuVgzvLdjzrTsg', // Natop²
-  'UCPZJQKRCa8qR42yrbsZPA0A', // Natop Shorts
-  'UCsNveX_fUw-feGXtavJaXoA', // Natop short
-  'UCjIR192gYk5mqSc3u9pOmWA', // Natop Clips
-  'UCfn_2UOehMdGzmr1KczYPNg', // Litsu
-  'UC-hzCqtEIc9kpXfibiI8g5g', // TuRis
-  'UCyGKTf_ciCMYx4yNnmCLO4A', // anakin
-  'UC33ouI6m6PzoYXrYGWBoDxA', // BLZstarss
-  'UCx3Gn8TvEWBpYS8FkuhJZXw', // Shawnichi
-  'UC42jFq9iynEwzDA8VG-xG7g', // ElBiblo
-  'UCWf56BPD2yh4FF5jnMyveKg', // Fog
-  'UCZvetmGleeCfIzffI842x3Q', // Remax
-  'UCVoj4RFLNKHl952IAkSGttQ', // FANTOCHE
-  'UCjWcCtB7itTtwBujCK7sb6A', // dayviix (ORA)
-  'UCYBhivau5cOjWDdlQ05u2-g', // Karzaaax
-  'UCbqvW9m4qjbDIcMyseIc3zg', // Strayed
-];
+const TOTAL_SUBS = 13284588;
+const WS_URL =
+  import.meta.env.VITE_WS_URL ||
+  (typeof window !== 'undefined'
+    ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`
+    : '');
 
 export default function App() {
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -78,41 +62,40 @@ export default function App() {
     return () => window.removeEventListener('scroll', handle);
   }, [subsValue, liveActive]);
 
-  // Live update du compteur : fetch toutes les 2.5s sur mixerno
+  // Live update du compteur via WebSocket (serveur cote VPS qui fetch YouTube API)
   useEffect(() => {
     if (!liveActive) return;
-    let cancelled = false;
-    const lastKnown = new Map();
+    let ws;
+    let reconnectTimer;
+    let stopped = false;
 
-    const fetchAll = async () => {
-      const results = await Promise.all(
-        LIVE_CHANNELS.map(async (id) => {
-          try {
-            const r = await fetch(`https://mixerno.space/api/youtube-channel-counter/user/${id}`);
-            const j = await r.json();
-            const s =
-              j.counts?.find((c) => c.value === 'subscribers')?.count ??
-              j.counts?.find((c) => c.value === 'apisubscribers')?.count;
-            if (s != null) {
-              lastKnown.set(id, s);
-              return s;
-            }
-          } catch {
-            // ignore, use last known
+    const connect = () => {
+      try {
+        ws = new WebSocket(WS_URL);
+      } catch {
+        return;
+      }
+      ws.onmessage = (e) => {
+        try {
+          const d = JSON.parse(e.data);
+          if (d.type === 'subs' && typeof d.total === 'number' && d.total > 0) {
+            setSubsValue(d.total);
           }
-          return lastKnown.get(id) ?? 0;
-        })
-      );
-      if (cancelled) return;
-      const total = results.reduce((a, b) => a + b, 0);
-      if (total > 0) setSubsValue(total);
+        } catch {
+          // ignore
+        }
+      };
+      ws.onclose = () => {
+        if (!stopped) reconnectTimer = setTimeout(connect, 2000);
+      };
+      ws.onerror = () => ws?.close();
     };
+    connect();
 
-    fetchAll();
-    const id = setInterval(fetchAll, 2500);
     return () => {
-      cancelled = true;
-      clearInterval(id);
+      stopped = true;
+      clearTimeout(reconnectTimer);
+      ws?.close();
     };
   }, [liveActive]);
 
