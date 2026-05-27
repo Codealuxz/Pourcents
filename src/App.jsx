@@ -192,10 +192,6 @@ export default function App() {
               gradientTo="transparent"
               gradientHeight={20}
             />
-            <span
-              className="font-display font-black text-bone leading-none flex items-center"
-              style={{ fontSize: isMobile ? 64 : 110, height: isMobile ? 80 : 120 }}
-            >+</span>
           </div>
         </section>
 
