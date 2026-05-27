@@ -17,7 +17,7 @@ const navItems = [
   { label: 'Chiffres', href: '#palmares' },
 ];
 
-const TOTAL_SUBS = 1349618;
+const TOTAL_SUBS = 13115380;
 
 export default function App() {
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -41,7 +41,6 @@ export default function App() {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  // Trigger l'animation du compteur quand la section devient visible
   useEffect(() => {
     const handle = () => {
       const el = document.getElementById('subs-counter');
@@ -60,7 +59,7 @@ export default function App() {
     <ClickSpark sparkColor="#ffffff" sparkSize={10} sparkRadius={20} sparkCount={10} duration={500}>
       <Loader />
       <div className="min-h-screen bg-ink text-bone relative">
-        {/* NAVBAR pill flottante */}
+        {}
         <header className="fixed top-6 left-0 right-0 z-[200] flex justify-center pointer-events-none">
           <div className="pointer-events-auto rounded-[14px] border border-white/15 bg-black p-2 overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
             <GooeyNav
@@ -76,7 +75,7 @@ export default function App() {
           </div>
         </header>
 
-        {/* HERO : ColorBends en fond + Lanyard au centre */}
+        {}
         <section id="hero" className="relative min-h-screen overflow-hidden">
           <div className="absolute inset-0">
             <LightRays
@@ -93,7 +92,7 @@ export default function App() {
             />
           </div>
 
-          {/* CurvedLoop en bas du hero (remonte sur mobile) */}
+          {}
           <div className="absolute bottom-24 md:bottom-0 left-0 right-0 z-20 pointer-events-auto">
             <CurvedLoop
               marqueeText="LES POURCENTS ✦ ON EST LES MEILLEURS ✦ MS CREATORS ✦ "
@@ -104,11 +103,11 @@ export default function App() {
             />
           </div>
 
-          {/* Colonnes membres aimantes a la souris : 4 a gauche, 4 a droite */}
+          {}
           <FloatingMembers />
         </section>
 
-        {/* Texte explicatif anime au scroll */}
+        {}
         <section className="relative px-6 md:px-10 pt-12 pb-32 max-w-5xl mx-auto">
           <ScrollReveal
             baseOpacity={0.05}
@@ -123,13 +122,13 @@ export default function App() {
           </ScrollReveal>
         </section>
 
-        {/* Compteur abonnes cumules */}
+        {}
         <section id="subs-counter" className="relative px-6 md:px-10 py-32 max-w-5xl mx-auto text-center">
           <p className="font-mono text-xs uppercase tracking-widest text-white/50 mb-8">Abonnés cumulés des plus gros</p>
           <div className="flex items-center justify-center gap-2 font-display" style={{ height: isMobile ? 80 : 120 }}>
             <Counter
               value={subsValue}
-              places={[1000000, 100000, 10000, 1000, 100, 10, 1]}
+              places={[10000000, 1000000, 100000, 10000, 1000, 100, 10, 1]}
               fontSize={isMobile ? 64 : 110}
               padding={8}
               gap={4}
@@ -147,7 +146,7 @@ export default function App() {
           </div>
         </section>
 
-        {/* Lanyard fixed : sur mobile -> disparait au scroll, sur desktop -> glisse a gauche */}
+        {}
         <div
           className="fixed inset-0 z-[100]"
           style={{
@@ -159,7 +158,7 @@ export default function App() {
           <Lanyard position={[0, 0, 20]} gravity={[0, -40, 0]} fov={20} transparent scrollProgress={scrollProgress} />
         </div>
 
-        {/* Les membres du clan, triés par audience YouTube */}
+        {}
         <section id="roster" className="relative px-6 md:px-10 py-32 max-w-6xl mx-auto">
           <h2 className="font-display text-4xl md:text-6xl font-black leading-none mb-3">Nos meilleurs membres</h2>
           <p className="font-mono text-xs uppercase tracking-widest text-white/40 mb-8">Sur YouTube seulement</p>

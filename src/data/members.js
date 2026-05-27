@@ -3,6 +3,7 @@
 // Source : Discord MS Saison 6 + API mixerno.space
 
 export const members = [
+  { name: 'Natop', handle: 'natop', channelId: 'UCOnHh1jq4LZ2Pgn7adeXnFg', subs: 11765762, views: 2811916418, pfp: '/avatars/natop.jpg', combined: true },
   { name: 'Litsu', handle: 'Litsu', channelId: 'UCfn_2UOehMdGzmr1KczYPNg', subs: 575001, views: 748689589, pfp: '/avatars/litsu.jpg' },
   { name: 'TuRis WORLD', handle: 'TuRis WORLD', channelId: 'UC-hzCqtEIc9kpXfibiI8g5g', subs: 427000, views: 162455137, pfp: '/avatars/turis.jpg' },
   { name: 'anakin', handle: 'Anakin', channelId: 'UCyGKTf_ciCMYx4yNnmCLO4A', subs: 181000, views: 59523001, pfp: '/avatars/anakin.jpg' },
