@@ -1,20 +1,35 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { members } from '../data/members';
+
+const MIN_DISPLAY_DELAY = 200; // ms : si tout est chargé avant, on n'affiche jamais le loader
 
 export default function Loader() {
   const [progress, setProgress] = useState(0);
-  const [done, setDone] = useState(false);
+  const [showContent, setShowContent] = useState(false);
+  const [fading, setFading] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const doneRef = useRef(false);
 
   useEffect(() => {
     let loaded = 0;
     const total = members.length;
+
+    const finish = () => {
+      if (doneRef.current) return;
+      doneRef.current = true;
+      // Si on n'a pas eu le temps d'afficher le contenu (< 200ms), on cache direct
+      if (!showContent) {
+        setHidden(true);
+      } else {
+        setFading(true);
+        setTimeout(() => setHidden(true), 500);
+      }
+    };
+
     const onOne = () => {
       loaded += 1;
       setProgress(Math.round((loaded / total) * 100));
-      if (loaded >= total) {
-        setTimeout(() => setDone(true), 300);
-      }
+      if (loaded >= total) finish();
     };
 
     members.forEach((m) => {
@@ -24,35 +39,42 @@ export default function Loader() {
       img.src = m.pfp;
     });
 
-    // Safety : si rien charge sous 3.5s, on continue
-    const safety = setTimeout(() => setDone(true), 3500);
-    return () => clearTimeout(safety);
+    const safety = setTimeout(finish, 3500);
+    const showTimer = setTimeout(() => {
+      if (!doneRef.current) setShowContent(true);
+    }, MIN_DISPLAY_DELAY);
+
+    return () => {
+      clearTimeout(safety);
+      clearTimeout(showTimer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Re-check si done est arrive apres que showContent est devenu true
   useEffect(() => {
-    if (done) {
-      const t = setTimeout(() => setHidden(true), 700);
+    if (showContent && doneRef.current && !fading) {
+      setFading(true);
+      const t = setTimeout(() => setHidden(true), 500);
       return () => clearTimeout(t);
     }
-  }, [done]);
+  }, [showContent, fading]);
 
   if (hidden) return null;
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-ink transition-opacity duration-700"
-      style={{ opacity: done ? 0 : 1, pointerEvents: done ? 'none' : 'auto' }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-ink transition-opacity duration-500"
+      style={{ opacity: fading ? 0 : 1, pointerEvents: fading ? 'none' : 'auto' }}
     >
-      <div className="font-display text-[20vw] md:text-[14rem] font-black leading-none tracking-tighter">%</div>
-      <div className="mt-12 w-64 md:w-80 h-px bg-white/10 relative overflow-hidden">
-        <div
-          className="absolute top-0 left-0 h-full bg-bone transition-[width] duration-200 ease-out"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-      <div className="mt-4 font-mono text-xs uppercase tracking-widest text-white/40 tabular-nums">
-        {String(progress).padStart(3, '0')}%
-      </div>
+      {showContent && (
+        <div className="flex flex-col items-center leading-none">
+          <span className="font-display text-2xl md:text-3xl tabular-nums text-bone mb-4">
+            {progress}
+          </span>
+          <span className="font-display text-[40vw] md:text-[22rem] text-bone">%</span>
+        </div>
+      )}
     </div>
   );
 }

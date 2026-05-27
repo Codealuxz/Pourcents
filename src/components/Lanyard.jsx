@@ -91,9 +91,6 @@ function makeCardTexture() {
 
 export default function Lanyard({ position = [0, 0, 30], gravity = [0, -40, 0], fov = 20, transparent = true, scrollProgress = 0 }) {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
-  const canvasContainerRef = useRef(null);
-  const cardScreenPosRef = useRef({ x: -9999, y: -9999, w: 0, h: 0 });
-  const hoverPushRef = useRef({ active: false, dx: 0, dy: 0 });
   const isScrolled = scrollProgress > 0.05;
 
   useEffect(() => {
@@ -102,42 +99,18 @@ export default function Lanyard({ position = [0, 0, 30], gravity = [0, -40, 0], 
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  // Au scroll : pas de drag, juste un push physique quand la souris survole la card
-  useEffect(() => {
-    if (!isScrolled) {
-      hoverPushRef.current.active = false;
-      return;
-    }
-    const onMove = (e) => {
-      const { x, y, w, h } = cardScreenPosRef.current;
-      const dx = e.clientX - x;
-      const dy = e.clientY - y;
-      const inCard =
-        Math.abs(dx) <= w / 2 + 30 &&
-        Math.abs(dy) <= h / 2 + 30;
-      hoverPushRef.current.active = inCard;
-      hoverPushRef.current.dx = dx;
-      hoverPushRef.current.dy = dy;
-    };
-    window.addEventListener('pointermove', onMove);
-    return () => {
-      window.removeEventListener('pointermove', onMove);
-      hoverPushRef.current.active = false;
-    };
-  }, [isScrolled]);
-
   return (
-    <div className="lanyard-wrapper" ref={canvasContainerRef}>
+    <div className="lanyard-wrapper">
       <Canvas
         camera={{ position, fov }}
         dpr={[1, isMobile ? 1.5 : 2]}
         gl={{ alpha: transparent }}
-        style={{ pointerEvents: isScrolled ? 'none' : 'auto' }}
+        style={{ pointerEvents: isScrolled ? 'none' : 'auto', touchAction: isScrolled ? 'auto' : 'none' }}
         onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), transparent ? 0 : 1)}
       >
         <ambientLight intensity={Math.PI} />
         <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60}>
-          <Band isMobile={isMobile} scrollProgress={scrollProgress} cardScreenPosRef={cardScreenPosRef} hoverPushRef={hoverPushRef} />
+          <Band isMobile={isMobile} scrollProgress={scrollProgress} />
         </Physics>
         <Environment blur={0.75}>
           <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
@@ -150,7 +123,7 @@ export default function Lanyard({ position = [0, 0, 30], gravity = [0, -40, 0], 
   );
 }
 
-function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, scrollProgress = 0, cardScreenPosRef, hoverPushRef }) {
+function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, scrollProgress = 0 }) {
   const band = useRef(),
     fixed = useRef(),
     j1 = useRef(),
@@ -217,38 +190,6 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false, scrollProgress = 
         cardGroup.current.position.y = 1.33 - 1.125 * s;
       }
 
-      // Update la position ecran de la card (pour detection hover au scroll)
-      if (card.current && cardGroup.current && cardScreenPosRef) {
-        const pos = card.current.translation();
-        const offsetY = cardGroup.current.position.y;
-        const worldPos = new THREE.Vector3(pos.x, pos.y + offsetY, pos.z);
-        worldPos.project(state.camera);
-        const screenX = ((worldPos.x + 1) / 2) * state.size.width;
-        const screenY = ((1 - worldPos.y) / 2) * state.size.height;
-        const s = cardGroup.current.scale.x;
-        const ratio = s / 2.25;
-        const screenW = 160 * ratio + 30;
-        const screenH = 220 * ratio + 30;
-        cardScreenPosRef.current = { x: screenX, y: screenY, w: screenW, h: screenH };
-      }
-
-      // Au scroll : la card "evite" la souris quand elle approche (repulsion douce)
-      if (hoverPushRef?.current?.active && card.current) {
-        const { dx, dy } = hoverPushRef.current;
-        const dist = Math.hypot(dx, dy);
-        const range = 180;
-        if (dist > 0 && dist < range) {
-          const strength = Math.pow(1 - dist / range, 2) * 6;
-          // direction opposee au pointer (la card s'eloigne) ; y inverse car ecran -> 3D
-          const ux = -dx / dist;
-          const uy = dy / dist;
-          card.current.wakeUp();
-          card.current.applyImpulse(
-            { x: ux * strength * delta, y: uy * strength * delta, z: 0 },
-            true
-          );
-        }
-      }
     }
 
     if (dragged) {

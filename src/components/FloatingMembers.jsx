@@ -1,7 +1,7 @@
 import { members, formatCount } from '../data/members';
 import Magnet from './Magnet';
 
-// Positions dispersees, plus hautes qu'avant + 2 slots en bas
+// Positions desktop : 4 a gauche, 4 a droite (dispersees, pas alignees)
 const SLOTS = [
   { side: 'left', x: '6%', y: '14%' },
   { side: 'left', x: '14%', y: '30%' },
@@ -40,22 +40,56 @@ function MemberBubble({ m, side }) {
 
 export default function FloatingMembers() {
   return (
-    <div className="absolute inset-0 z-30 pointer-events-none">
-      {SLOTS.map((s, i) => {
-        const m = members[i];
-        if (!m) return null;
-        const posStyle =
-          s.side === 'left'
-            ? { left: s.x, top: s.y }
-            : { right: s.x, top: s.y };
-        return (
-          <div key={m.channelId} className="absolute" style={posStyle}>
-            <div className="float-anim" style={{ animationDelay: `${(i * 0.6) % 6}s`, animationDuration: `${5 + (i % 3)}s` }}>
-              <MemberBubble m={m} side={s.side} />
+    <>
+      {/* Desktop : 8 bubbles flottants disperses gauche/droite avec magnet */}
+      <div className="hidden md:block absolute inset-0 z-30 pointer-events-none">
+        {SLOTS.map((s, i) => {
+          const m = members[i];
+          if (!m) return null;
+          const posStyle =
+            s.side === 'left' ? { left: s.x, top: s.y } : { right: s.x, top: s.y };
+          return (
+            <div key={m.channelId} className="absolute" style={posStyle}>
+              <div
+                className="float-anim"
+                style={{
+                  animationDelay: `${(i * 0.6) % 6}s`,
+                  animationDuration: `${5 + (i % 3)}s`,
+                }}
+              >
+                <MemberBubble m={m} side={s.side} />
+              </div>
             </div>
-          </div>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
+
+      {/* Mobile : marquee auto qui defile en boucle, juste au-dessus du CurvedLoop */}
+      <div className="md:hidden absolute bottom-20 left-0 right-0 z-40 overflow-hidden pointer-events-none">
+        <div className="flex gap-6 w-max animate-marquee" style={{ animationDuration: '40s', animationDirection: 'reverse' }}>
+          {[...members.slice(0, 8), ...members.slice(0, 8)].map((m, i) => (
+            <a
+              key={`${m.channelId}-${i}`}
+              href={`https://www.youtube.com/channel/${m.channelId}`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-2 shrink-0 pointer-events-auto"
+            >
+              <img
+                src={m.pfp}
+                alt={m.name}
+                className="w-9 h-9 rounded-full object-cover"
+              />
+              <div>
+                <p className="font-display font-bold text-xs leading-tight whitespace-nowrap">{m.name}</p>
+                <p className="font-mono text-[9px] text-white/60 tabular-nums leading-tight">
+                  {formatCount(m.subs)}
+                </p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </>
   );
 }

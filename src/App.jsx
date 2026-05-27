@@ -92,7 +92,7 @@ export default function App() {
               marqueeText="LES POURCENTS ✦ ON EST LES MEILLEURS ✦ MS CREATORS ✦ "
               speed={1.2}
               curveAmount={120}
-              direction="left"
+              direction="right"
               interactive
             />
           </div>
@@ -137,8 +137,15 @@ export default function App() {
           </div>
         </section>
 
-        {/* Lanyard fixed sur toute la page : la card garde sa taille, l'ancrage glisse vers le coin haut-gauche au-dela d'un seuil de scroll */}
-        <div className="fixed inset-0 z-[100] pointer-events-none">
+        {/* Lanyard fixed sur le hero uniquement (disparait au scroll) */}
+        <div
+          className="fixed inset-0 z-[100]"
+          style={{
+            opacity: scrollProgress > 0.05 ? 0 : 1,
+            pointerEvents: scrollProgress > 0.05 ? 'none' : 'auto',
+            transition: 'opacity 0.4s ease-out',
+          }}
+        >
           <Lanyard position={[0, 0, 20]} gravity={[0, -40, 0]} fov={20} transparent scrollProgress={scrollProgress} />
         </div>
 
