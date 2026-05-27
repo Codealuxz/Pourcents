@@ -65,7 +65,7 @@ export default function FloatingMembers() {
       </div>
 
       {/* Mobile : marquee auto qui defile en boucle, juste au-dessus du CurvedLoop */}
-      <div className="md:hidden absolute bottom-20 left-0 right-0 z-40 overflow-hidden pointer-events-none">
+      <div className="md:hidden absolute bottom-48 left-0 right-0 z-40 overflow-hidden pointer-events-none">
         <div className="flex gap-6 w-max animate-marquee" style={{ animationDuration: '40s', animationDirection: 'reverse' }}>
           {[...members.slice(0, 8), ...members.slice(0, 8)].map((m, i) => (
             <a

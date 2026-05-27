@@ -93,8 +93,8 @@ export default function App() {
             />
           </div>
 
-          {/* CurvedLoop en bas du hero */}
-          <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-auto">
+          {/* CurvedLoop en bas du hero (remonte sur mobile) */}
+          <div className="absolute bottom-24 md:bottom-0 left-0 right-0 z-20 pointer-events-auto">
             <CurvedLoop
               marqueeText="LES POURCENTS ✦ ON EST LES MEILLEURS ✦ MS CREATORS ✦ "
               speed={1.2}
@@ -126,21 +126,24 @@ export default function App() {
         {/* Compteur abonnes cumules */}
         <section id="subs-counter" className="relative px-6 md:px-10 py-32 max-w-5xl mx-auto text-center">
           <p className="font-mono text-xs uppercase tracking-widest text-white/50 mb-8">Abonnés cumulés des plus gros</p>
-          <div className="flex items-center justify-center gap-2 font-display" style={{ height: 150 }}>
+          <div className="flex items-center justify-center gap-2 font-display" style={{ height: isMobile ? 80 : 120 }}>
             <Counter
               value={subsValue}
               places={[1000000, 100000, 10000, 1000, 100, 10, 1]}
-              fontSize={140}
-              padding={10}
-              gap={6}
+              fontSize={isMobile ? 64 : 110}
+              padding={8}
+              gap={4}
               horizontalPadding={0}
               textColor="#f3f1ec"
               fontWeight={900}
               gradientFrom="#050505"
               gradientTo="transparent"
-              gradientHeight={28}
+              gradientHeight={20}
             />
-            <span className="font-display font-black text-bone text-[140px] leading-none flex items-center" style={{ height: 150 }}>+</span>
+            <span
+              className="font-display font-black text-bone leading-none flex items-center"
+              style={{ fontSize: isMobile ? 64 : 110, height: isMobile ? 80 : 120 }}
+            >+</span>
           </div>
         </section>
 
