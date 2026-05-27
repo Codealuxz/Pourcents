@@ -1,0 +1,16 @@
+diff --git a/node_modules/vite/dist/node/chunks/node.js b/node_modules/vite/dist/node/chunks/node.js
+index 0b393de..bb50371 100644
+--- a/node_modules/vite/dist/node/chunks/node.js
++++ b/node_modules/vite/dist/node/chunks/node.js
+@@ -25249,8 +25249,9 @@ function createDevHtmlTransformFn(config) {
+ 	};
+ }
+ function getHtmlFilename(url, server) {
+-	if (url.startsWith(FS_PREFIX)) return decodeURIComponent(fsPathFromId(url));
+-	else return decodeURIComponent(normalizePath(path.join(server.config.root, url.slice(1))));
++	const tryDecode = (s) => { try { return decodeURIComponent(s); } catch { return s; } };
++	if (url.startsWith(FS_PREFIX)) return tryDecode(fsPathFromId(url));
++	else return tryDecode(normalizePath(path.join(server.config.root, url.slice(1))));
+ }
+ function shouldPreTransform(url, config) {
+ 	return !checkPublicFile(url, config) && (isJSRequest(url) || isCSSRequest(url));
