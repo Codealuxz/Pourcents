@@ -7,6 +7,8 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function ScrollReveal({
   children,
+  prefix,
+  suffix,
   scrollContainerRef,
   enableBlur = true,
   baseOpacity = 0.1,
@@ -99,7 +101,11 @@ export default function ScrollReveal({
 
   return (
     <h2 ref={containerRef} className={`scroll-reveal ${containerClassName}`}>
-      <p className={`scroll-reveal-text ${textClassName}`}>{splitText}</p>
+      <p className={`scroll-reveal-text ${textClassName}`}>
+        {prefix && <span className="word">{prefix}</span>}
+        {splitText}
+        {suffix && <span className="word">{suffix}</span>}
+      </p>
     </h2>
   );
 }

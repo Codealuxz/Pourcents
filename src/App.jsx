@@ -19,9 +19,31 @@ const navItems = [
 
 const TOTAL_SUBS = 13115380;
 
+// Toutes les chaines YouTube a fetcher en live (Natop x5 + 11 autres = 16)
+const LIVE_CHANNELS = [
+  'UCOnHh1jq4LZ2Pgn7adeXnFg', // Natop
+  'UCxnV0b1efAuVgzvLdjzrTsg', // Natop²
+  'UCPZJQKRCa8qR42yrbsZPA0A', // Natop Shorts
+  'UCsNveX_fUw-feGXtavJaXoA', // Natop short
+  'UCjIR192gYk5mqSc3u9pOmWA', // Natop Clips
+  'UCfn_2UOehMdGzmr1KczYPNg', // Litsu
+  'UC-hzCqtEIc9kpXfibiI8g5g', // TuRis
+  'UCyGKTf_ciCMYx4yNnmCLO4A', // anakin
+  'UC33ouI6m6PzoYXrYGWBoDxA', // BLZstarss
+  'UCx3Gn8TvEWBpYS8FkuhJZXw', // Shawnichi
+  'UC42jFq9iynEwzDA8VG-xG7g', // ElBiblo
+  'UCWf56BPD2yh4FF5jnMyveKg', // Fog
+  'UCZvetmGleeCfIzffI842x3Q', // Remax
+  'UCVoj4RFLNKHl952IAkSGttQ', // FANTOCHE
+  'UCjWcCtB7itTtwBujCK7sb6A', // dayviix (ORA)
+  'UCYBhivau5cOjWDdlQ05u2-g', // Karzaaax
+  'UCbqvW9m4qjbDIcMyseIc3zg', // Strayed
+];
+
 export default function App() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [subsValue, setSubsValue] = useState(0);
+  const [liveActive, setLiveActive] = useState(false);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
 
   useEffect(() => {
@@ -46,14 +68,53 @@ export default function App() {
       const el = document.getElementById('subs-counter');
       if (!el) return;
       const rect = el.getBoundingClientRect();
-      if (rect.top < window.innerHeight * 0.85 && subsValue === 0) {
-        setSubsValue(TOTAL_SUBS);
+      if (rect.top < window.innerHeight * 0.85) {
+        if (subsValue === 0) setSubsValue(TOTAL_SUBS);
+        if (!liveActive) setLiveActive(true);
       }
     };
     handle();
     window.addEventListener('scroll', handle, { passive: true });
     return () => window.removeEventListener('scroll', handle);
-  }, [subsValue]);
+  }, [subsValue, liveActive]);
+
+  // Live update du compteur : fetch toutes les 2.5s sur mixerno
+  useEffect(() => {
+    if (!liveActive) return;
+    let cancelled = false;
+    const lastKnown = new Map();
+
+    const fetchAll = async () => {
+      const results = await Promise.all(
+        LIVE_CHANNELS.map(async (id) => {
+          try {
+            const r = await fetch(`https://mixerno.space/api/youtube-channel-counter/user/${id}`);
+            const j = await r.json();
+            const s =
+              j.counts?.find((c) => c.value === 'subscribers')?.count ??
+              j.counts?.find((c) => c.value === 'apisubscribers')?.count;
+            if (s != null) {
+              lastKnown.set(id, s);
+              return s;
+            }
+          } catch {
+            // ignore, use last known
+          }
+          return lastKnown.get(id) ?? 0;
+        })
+      );
+      if (cancelled) return;
+      const total = results.reduce((a, b) => a + b, 0);
+      if (total > 0) setSubsValue(total);
+    };
+
+    fetchAll();
+    const id = setInterval(fetchAll, 2500);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [liveActive]);
 
   return (
     <ClickSpark sparkColor="#ffffff" sparkSize={10} sparkRadius={20} sparkCount={10} duration={500}>
@@ -95,10 +156,10 @@ export default function App() {
           {}
           <div className="absolute bottom-24 md:bottom-0 left-0 right-0 z-20 pointer-events-auto">
             <CurvedLoop
-              marqueeText="LES POURCENTS ✦ ON EST LES MEILLEURS ✦ MS CREATORS ✦ "
+              marqueeText="1% 2% 3% 4% 5% 6% 7% 8% 9% 10% 11% 12% 13% 14% 15% 16% 17% 18% 19% 20% 21% 22% 23% 24% 25% 26% 27% 28% 29% 30% 31% 32% 33% 34% 35% 36% 37% 38% 39% 40% 41% 42% 43% 44% 45% 46% 47% 48% 49% 50% 51% 52% 53% 54% 55% 56% 57% 58% 59% 60% 61% 62% 63% 64% 65% 66% 67% 68% 69% 70% 71% 72% 73% 74% 75% 76% 77% 78% 79% 80% 81% 82% 83% 84% 85% 86% 87% 88% 89% 90% 91% 92% 93% 94% 95% 96% 97% 98% 99% 100%"
               speed={1.2}
               curveAmount={120}
-              direction="right"
+              direction="left"
               interactive
             />
           </div>
@@ -108,23 +169,32 @@ export default function App() {
         </section>
 
         {}
-        <section className="relative px-6 md:px-10 pt-12 pb-32 max-w-5xl mx-auto">
+        <section className="relative px-6 md:px-10 pt-32 pb-12 max-w-5xl mx-auto">
           <ScrollReveal
             baseOpacity={0.05}
             enableBlur
-            baseRotation={4}
+            baseRotation={0}
             blurStrength={6}
-            textClassName="font-display !font-black tracking-tight"
-            wordAnimationStart="top 65%"
-            wordAnimationEnd="bottom 75%"
+            textClassName="font-quote !font-normal not-italic tracking-normal"
+            wordAnimationStart="top 60%"
+            wordAnimationEnd="bottom 35%"
+            prefix={<span className="font-body align-middle">"</span>}
+            suffix={
+              <>
+                <span className="font-body align-middle">"</span>
+                <span className="font-body text-white/50 ml-3 align-middle tracking-widest" style={{ fontSize: '0.55em' }}>
+                  — Ecclésiaste 1:9
+                </span>
+              </>
+            }
           >
-            Les Pourcents sont nés d'une obsession simple : prouver qu'on peut être le clan le plus actif, le plus régulier et le plus haut de MS Creators. On donne les meilleurs feedbacks. On remplit les podiums. On fait la GDC. Pas un clan, un standard.
+            CE QUI A ETE SERA. CE QUI SEST FAIT SE REFERA. IL NY A RIEN DE NOUVEAU SOUS LE SOLEIL.
           </ScrollReveal>
         </section>
 
         {}
         <section id="subs-counter" className="relative px-6 md:px-10 py-32 max-w-5xl mx-auto text-center">
-          <p className="font-mono text-xs uppercase tracking-widest text-white/50 mb-8">Abonnés cumulés des plus gros</p>
+          <p className="font-mono text-xs uppercase tracking-widest text-white/50 mb-8">Abonnés cumulés des %</p>
           <div className="flex items-center justify-center gap-2 font-display" style={{ height: isMobile ? 80 : 120 }}>
             <Counter
               value={subsValue}
@@ -223,9 +293,8 @@ export default function App() {
         </section>
 
         <section className="relative px-6 md:px-10 py-40 max-w-6xl mx-auto">
-          <h2 className="font-display text-4xl md:text-6xl font-black leading-[0.95] tracking-tighter">
-            On gagne pas <br />
-            <span className="text-bone">parce qu'on veut.</span>
+          <h2 className="font-display text-4xl md:text-8xl font-black leading-[0.95] tracking-tighter">
+            %
           </h2>
         </section>
 
