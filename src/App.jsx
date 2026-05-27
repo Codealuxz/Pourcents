@@ -116,8 +116,8 @@ export default function App() {
             baseRotation={4}
             blurStrength={6}
             textClassName="font-display !font-black tracking-tight"
-            wordAnimationStart="top 40%"
-            wordAnimationEnd="bottom 50%"
+            wordAnimationStart="top 65%"
+            wordAnimationEnd="bottom 75%"
           >
             Les Pourcents sont nés d'une obsession simple : prouver qu'on peut être le clan le plus actif, le plus régulier et le plus haut de MS Creators. On donne les meilleurs feedbacks. On remplit les podiums. On fait la GDC. Pas un clan, un standard.
           </ScrollReveal>
