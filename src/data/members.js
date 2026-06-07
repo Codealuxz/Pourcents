@@ -21,6 +21,7 @@ export const members = [
   { name: 'Qziou', handle: 'Qziouyt', channelId: 'UCap1FuQ_GyBE7LF3uShknqA', subs: 14000, views: 11064519, pfp: '/avatars/qziou.jpg' },
   { name: 'Strayed', handle: 'Strayed', channelId: 'UCbqvW9m4qjbDIcMyseIc3zg', subs: 8480, views: 464090, pfp: '/avatars/strayed.jpg' },
   { name: 'Gumby', handle: 'Gumby', channelId: 'UCK0YZa9fia8DxE1qhUg-ZWw', subs: 2310, views: 733525, pfp: '/avatars/gumby.jpg' },
+  { name: 'Malco', handle: 'Malco', channelId: 'UCz6bSwNXeWDi-q9LEond0Gw', subs: 2147, views: 292642, pfp: '/avatars/malco.jpg' },
 ];
 
 const fr = new Intl.NumberFormat('fr-FR');
