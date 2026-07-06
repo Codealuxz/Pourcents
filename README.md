@@ -1,16 +1,32 @@
-# React + Vite
+# Les Pourcents
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Website of the **Les Pourcents** clan, built with React, Vite and react-three-fiber for the 3D scenes.
 
-Currently, two official plugins are available:
+## Development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev
+```
 
-## React Compiler
+## Production build
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm run build
+npm run preview
+```
 
-## Expanding the ESLint configuration
+## Docker
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+The site ships with a Dockerfile (static build served by nginx):
+
+```bash
+docker build -t pourcents .
+docker run -p 8080:80 pourcents
+```
+
+## Stack
+
+- React 19 + Vite
+- react-three-fiber / drei for 3D
+- nginx + Docker for deployment
