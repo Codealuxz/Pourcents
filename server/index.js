@@ -4,7 +4,7 @@ import { WebSocketServer } from 'ws';
 const PORT = process.env.PORT || 3000;
 const REFRESH_MS = parseInt(process.env.REFRESH_MS || '1500', 10);
 
-// 25 chaines : Natop x5 + 20 autres
+// 26 chaines : Natop x5 + 21 autres
 const CHANNELS = [
   'UCOnHh1jq4LZ2Pgn7adeXnFg',
   'UCxnV0b1efAuVgzvLdjzrTsg',
@@ -31,6 +31,7 @@ const CHANNELS = [
   'UCaPMLRrvxHljtxTLEXMCJtw',
   'UCz6bSwNXeWDi-q9LEond0Gw',
   'UCDemjuEn6LJprtgIdRB7Cew',
+  'UCmGp6F8O4ZP9yeTc0BY9coA',
 ];
 
 const lastKnown = new Map();

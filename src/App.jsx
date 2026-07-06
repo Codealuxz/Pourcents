@@ -18,7 +18,7 @@ const navItems = [
   { label: 'Stats', href: '#palmares' },
 ];
 
-const TOTAL_SUBS = 13284588;
+const TOTAL_SUBS = 13692037;
 const WS_URL =
   import.meta.env.VITE_WS_URL ||
   (typeof window !== 'undefined'
